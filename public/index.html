@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sena-Secure | Indian Defense Secure Information Platform</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Emergency Lockdown Alert Overlay -->
+  <div id="lockdown-alert-overlay"></div>
+
+  <!-- Zero-Trust Identity Verification Overlay -->
+  <div id="auth-overlay">
+    <div class="auth-container cyber-panel">
+      <div class="auth-header">
+        <div style="display: flex; justify-content: center; margin-bottom: 12px;">
+          <div class="indian-emblem-badge">
+            <div class="emblem-core"></div>
+          </div>
+        </div>
+        <h2 class="font-hud glow-cyan">Sena-Secure Gateway</h2>
+        <p>Bhartiya Raksha Zero-Trust Authentication Node</p>
+      </div>
+
+      <div class="auth-form-group">
+        <label for="military-id">Military Service ID</label>
+        <select id="military-id" class="auth-input">
+          <option value="">-- SELECT ID CARD CREDENTIALS --</option>
+          <option value="SENA-CDR-01">Gen. R. K. Singh (Commander - SENA-CDR-01)</option>
+          <option value="SENA-INT-05">Col. Neha Sharma (Intelligence Officer - SENA-INT-05)</option>
+          <option value="SENA-FLD-12">Maj. Vikramaditya (Field Operator - SENA-FLD-12)</option>
+          <option value="SENA-AUD-02">Dr. A. P. Subramanian (Auditor - SENA-AUD-02)</option>
+          <option value="SENA-ADM-99">Wng Cmdr S. Patel (System Admin - SENA-ADM-99)</option>
+        </select>
+      </div>
+
+      <div class="auth-form-group">
+        <label for="security-pin">Security PIN (4-Digits)</label>
+        <input type="password" id="security-pin" class="auth-input" maxlength="4" placeholder="Enter PIN code">
+      </div>
+
+      <label class="font-hud" style="color: var(--color-cyan); font-size: 14px;">Multi-Factor Authentication</label>
+      <div class="mfa-verification-matrix">
+        <div class="mfa-item" id="mfa-card" onclick="verifyMFACard()">
+          <div class="mfa-icon">🪪</div>
+          <div class="mfa-label">Smart ID</div>
+          <div class="mfa-status" id="mfa-card-status">PENDING</div>
+        </div>
+        
+        <div class="mfa-item" id="mfa-bio" onclick="verifyMFABiometrics()">
+          <div class="mfa-icon">👁️</div>
+          <div class="mfa-label">Iris Scan</div>
+          <div class="mfa-status" id="mfa-bio-status">PENDING</div>
+        </div>
+
+        <div class="mfa-item" id="mfa-token" onclick="verifyMFAToken()">
+          <div class="mfa-icon">🔑</div>
+          <div class="mfa-label">HW Token</div>
+          <div class="mfa-status" id="mfa-token-status">PENDING</div>
+        </div>
+
+        <div class="mfa-item" id="mfa-trust">
+          <div class="mfa-icon">💻</div>
+          <div class="mfa-label">Device trust</div>
+          <div class="mfa-status glow-green" style="color: var(--color-green);">APPROVED</div>
+        </div>
+      </div>
+
+      <!-- Biometric Scanner Animation Placeholder -->
+      <div class="biometric-scanner-box" id="scanner-box" style="display: none;">
+        <div class="scanner-line"></div>
+        <span class="font-hud" id="scanner-text" style="font-size: 13px; color: var(--color-cyan);">ALIGN EYE TO BIOMETRIC READER</span>
+      </div>
+
+      <button id="btn-login" class="auth-btn font-hud" onclick="submitAuth()">Verify Credentials</button>
+      <div id="auth-err-msg" style="color: var(--color-crimson); font-size: 12px; margin-top: 12px; text-align: center;"></div>
+    </div>
+  </div>
+
+  <!-- Main System HUD -->
+  <div id="hud-container" style="display: none;">
+    
+    <!-- Header -->
+    <header class="hud-header">
+      <div class="header-title-sec">
+        <div class="indian-emblem-badge">
+          <div class="emblem-core"></div>
+        </div>
+        <div class="header-titles">
+          <h1 class="font-hud glow-cyan">SENA-SECURE</h1>
+          <p>Classified Defense Exchange net // Indian Armed Forces</p>
+        </div>
+      </div>
+
+      <div class="header-sys-status">
+        <div class="status-indicator">
+          <span class="status-label">Operational status</span>
+          <span class="status-value glow-green" id="sys-op-status">SECURE & ONLINE</span>
+        </div>
+        <div class="status-indicator">
+          <span class="status-label">Active Node Connection</span>
+          <span class="status-value glow-cyan" id="ws-connections">SYNCING...</span>
+        </div>
+        <div class="status-indicator">
+          <span class="status-label">Cryptographic Grade</span>
+          <span class="status-value glow-saffron">PQC SHIELD (KYBER-768)</span>
+        </div>
+        <button class="btn-lockdown-toggle font-hud" onclick="toggleEmergencyLockdown()">EMERGENCY LOCKDOWN</button>
+      </div>
+    </header>
+
+    <!-- Sidebar and Main Panel -->
+    <div class="hud-body">
+      
+      <!-- Sidebar -->
+      <aside class="hud-sidebar">
+        <ul class="nav-links">
+          <li class="nav-link active" onclick="switchTab('map-pane', this)">
+            <span>🧭</span> Tactical Map
+          </li>
+          <li class="nav-link" onclick="switchTab('chat-pane', this)">
+            <span>💬</span> Secure Messenger
+          </li>
+          <li class="nav-link" onclick="switchTab('vault-pane', this)">
+            <span>🔒</span> Encrypted Storage
+          </li>
+          <li class="nav-link" onclick="switchTab('threat-pane', this)">
+            <span>🛡️</span> Threat Monitoring
+          </li>
+          <li class="nav-link" id="nav-audit" onclick="switchTab('audit-pane', this)">
+            <span>📜</span> System Audit Logs
+          </li>
+        </ul>
+
+        <div class="sidebar-profile">
+          <div class="profile-name" id="user-display-name">Gen. R. K. Singh</div>
+          <div class="profile-role" id="user-display-role">Commander (Army)</div>
+          <div class="profile-clearance" id="user-display-clearance">L5 - Operational Clearance</div>
+        </div>
+      </aside>
+
+      <!-- Main Contents -->
+      <main class="tab-content-container">
+
+        <!-- 1. TACTICAL MAP TAB -->
+        <div id="map-pane" class="hud-tab-pane active">
+          <div class="map-layout">
+            <div class="map-view-wrapper">
+              <div class="hud-title-bar">
+                <span>TACTICAL BORDER & COMMAND CENTER OPERATIONS</span>
+                <span id="coordinates-hud" class="glow-cyan">N 28.6139° / E 77.2090°</span>
+              </div>
+              <div class="canvas-map-container">
+                <canvas id="tactical-map-canvas"></canvas>
+                <div class="map-legend">
+                  <div class="legend-item"><div class="legend-dot green"></div> Active Command Center</div>
+                  <div class="legend-item"><div class="legend-dot saffron"></div> Border Operations Post</div>
+                  <div class="legend-item"><div class="legend-dot cyan"></div> Naval Operations Fleet</div>
+                  <div class="legend-item"><div class="legend-dot red"></div> Threat Event Flagged</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="map-sidebar-details">
+              <div class="node-status-card cyber-panel">
+                <div class="hud-title-bar"><span>SELECTED BASE ANALYSIS</span></div>
+                <div class="hud-panel-content">
+                  <h3 class="font-hud glow-cyan" id="selected-node-name" style="margin-bottom: 8px;">Joint Cyber Command</h3>
+                  <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
+                    <div><strong>Operational Unit:</strong> <span id="node-unit">New Delhi HQ</span></div>
+                    <div><strong>Clearance Requirement:</strong> <span id="node-clearance" style="color: var(--color-saffron);">Level 5</span></div>
+                    <div><strong>Encryption Link:</strong> <span id="node-encryption" style="color: var(--color-green);">Kyber Dual Layer</span></div>
+                    <div><strong>Threat Matrix Index:</strong> <span id="node-threat" style="color: var(--color-green);">Benign (0.02)</span></div>
+                    <div><strong>Connection State:</strong> <span id="node-status-badge" style="color: var(--color-green);">SYNCHRONIZED</span></div>
+                  </div>
+                  <hr style="border: 0; border-top: 1px solid rgba(0, 210, 255, 0.2); margin: 12px 0;">
+                  <button id="btn-isolate-node" class="auth-btn font-hud" style="font-size: 12px; padding: 6px;" onclick="isolateSelectedNode()">Isolate Node</button>
+                </div>
+              </div>
+
+              <div class="cyber-panel" style="flex-grow: 1; display: flex; flex-direction: column; overflow: hidden;">
+                <div class="hud-title-bar"><span>COMMAND CENTER NODE MAP</span></div>
+                <div class="hud-panel-content node-list-container" id="map-nodes-list">
+                  <!-- Generated dynamically in app.js -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. SECURE MESSENGER TAB -->
+        <div id="chat-pane" class="hud-tab-pane">
+          <div class="messenger-layout">
+            <div class="cyber-panel chats-list-panel" style="display: flex; flex-direction: column; height: 100%;">
+              <div class="hud-title-bar"><span>SECURE SECTORS</span></div>
+              <div class="node-list-container" id="chat-recipients-list" style="margin-top: 12px; flex-grow: 1; overflow-y: auto;">
+                <!-- Recipients populated in app.js -->
+              </div>
+              
+              <!-- Tactical Transceiver Simulator Panel -->
+              <div class="transceiver-settings-panel" style="border-top: 1px solid rgba(0, 210, 255, 0.2); padding-top: 14px; margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
+                <div class="hud-title-bar" style="background: transparent; border-bottom: none; padding: 0 0 4px 0;">
+                  <span>TACTICAL TRANSCEIVER</span>
+                </div>
+                <div class="auth-form-group" style="margin-bottom: 4px;">
+                  <label for="link-profile" style="font-size: 11px; margin-bottom: 4px; display: block; color: var(--color-cyan);">Link Channel</label>
+                  <select id="link-profile" class="auth-input" style="font-size: 12px; padding: 6px;" onchange="updateNetworkProfile()">
+                    <option value="broadband">📡 Fiber (100 Mbps, 0% Loss)</option>
+                    <option value="satellite">🛰️ Satellite GSAT (256 Kbps, 3% Loss)</option>
+                    <option value="mesh">📻 Tactical VHF Mesh (9.6 Kbps, 15% Loss)</option>
+                    <option value="offline">⛰️ Blackout / Offline (0 Kbps, 100% Loss)</option>
+                  </select>
+                </div>
+                <div style="font-size: 11px; color: var(--color-text-secondary); display: flex; flex-direction: column; gap: 4px;">
+                  <div><strong>Link Integrity:</strong> <span id="transceiver-signal" style="color: var(--color-green);">STRONG (99%)</span></div>
+                  <div><strong>Outbox Queue:</strong> <span id="transceiver-buffer-count" style="color: var(--color-cyan);">0 pending packets</span></div>
+                  <div style="margin-top: 4px; font-weight: 600; color: var(--color-saffron);">STANAG-5066 Binary Hex Frame:</div>
+                  <div id="transceiver-bin-hex" style="font-family: monospace; font-size: 10px; background: #000; padding: 6px; border: 1px solid rgba(0, 210, 255, 0.15); height: 50px; overflow-y: auto; color: var(--color-saffron); word-break: break-all;">
+                    Awaiting secure data...
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="chat-workspace">
+              <div class="hud-title-bar">
+                <span id="active-chat-recipient">TRANSMITTING TO: WESTERN COMMAND HQ</span>
+                <span style="font-size: 11px; color: var(--color-green);">IPSEC TUNNEL ACTIVE (TLS 1.3)</span>
+              </div>
+              
+              <!-- Chat Stream -->
+              <div class="chat-messages-scroll" id="chat-messages-container">
+                <!-- Dynamically updated -->
+              </div>
+
+              <!-- Chat Inputs -->
+              <div class="chat-input-area">
+                <div class="crypto-selection-bar">
+                  <span style="font-weight: bold; color: var(--color-cyan);">ENCRYPTION SHIELD:</span>
+                  <label class="crypto-option active">
+                    <input type="radio" name="crypto-algo" value="kyber" checked>
+                    <span>CRYSTALS-Kyber-768 Hybrid E2EE</span>
+                  </label>
+                  <label class="crypto-option">
+                    <input type="radio" name="crypto-algo" value="aes">
+                    <span>Standard AES-256-GCM E2EE</span>
+                  </label>
+                </div>
+                
+                <div class="chat-input-controls">
+                  <input type="text" id="chat-message-input" class="chat-text-input" placeholder="Type classified tactical transmission..." onkeydown="if(event.key==='Enter') sendSecureMessage()">
+                  <button class="btn-send-message" onclick="sendSecureMessage()">TRANSMIT</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. ENCRYPTED VAULT STORAGE TAB -->
+        <div id="vault-pane" class="hud-tab-pane">
+          <div class="storage-layout">
+            <div class="cyber-panel vault-files-panel">
+              <div class="hud-title-bar"><span>MILITARY CLASSIFIED VAULT (LOCAL DISK ENCRYPTION)</span></div>
+              
+              <div class="drag-drop-area" id="vault-drop-zone">
+                <div class="drag-drop-icon">💾</div>
+                <div class="drag-drop-text" id="drag-drop-text">DRAG & DROP INTELLIGENCE FILES TO ENCRYPT</div>
+                <div class="drag-drop-subtext">Uses AES-256-GCM browser encryption keys generated via PIN password.</div>
+              </div>
+              <input type="file" id="file-uploader-input" style="display: none;" onchange="handleFileSelected(event)" onclick="event.stopPropagation()">
+
+              <div class="hud-title-bar" style="background: transparent; border-bottom: 1px solid rgba(0, 210, 255, 0.15);">
+                <span>ENCRYPTED REPOSITORY FILES</span>
+              </div>
+              <div class="files-grid" id="encrypted-vault-grid">
+                <!-- File cards will go here -->
+              </div>
+            </div>
+
+            <div class="map-sidebar-details">
+              <div class="cyber-panel vault-crypto-panel">
+                <div class="hud-title-bar"><span>VAULT ENCRYPTION LOCK</span></div>
+                <div class="hud-panel-content">
+                  <div class="auth-form-group">
+                    <label for="vault-passphrase">Vault Passphrase</label>
+                    <input type="password" id="vault-passphrase" class="auth-input" value="SenaSecretPass123!" placeholder="Enter passphrase for file encryption">
+                  </div>
+                  <div style="font-size: 11px; color: var(--color-text-secondary); margin-bottom: 16px;">
+                    This passphrase is combined with a random salt to derive a 256-bit AES GCM symmetric key in Web Crypto.
+                  </div>
+                </div>
+              </div>
+
+              <div class="cyber-panel" style="flex-grow: 1; display: flex; flex-direction: column; overflow: hidden;">
+                <div class="hud-title-bar"><span>PQC DIGITAL SIGNATURE VERIFIER</span></div>
+                <div class="hud-panel-content" id="signature-verifier-details" style="font-family: monospace; font-size: 11px; overflow-y: auto;">
+                  <span style="color: var(--color-text-secondary);">Select an encrypted file card to inspect its crystals-dilithium public key and message verification signature...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. THREAT MONITORING SIEM TAB -->
+        <div id="threat-pane" class="hud-tab-pane">
+          <div class="siem-layout">
+            <div class="siem-top-stats">
+              <div class="cyber-panel stat-box">
+                <span class="stat-box-title">Total Logs Ingested</span>
+                <span class="stat-box-value glow-cyan" id="siem-total-logs">0</span>
+              </div>
+              <div class="cyber-panel stat-box">
+                <span class="stat-box-title">IDS/IPS Alerts Triggered</span>
+                <span class="stat-box-value glow-saffron" id="siem-ids-alerts">0</span>
+              </div>
+              <div class="cyber-panel stat-box">
+                <span class="stat-box-title">Blacklisted Attacking IPs</span>
+                <span class="stat-box-value glow-crimson" id="siem-blocked-ips">2</span>
+              </div>
+              <div class="cyber-panel stat-box">
+                <span class="stat-box-title">System Defcon Status</span>
+                <span class="stat-box-value glow-green" id="siem-defcon-status">LEVEL 5 - SAFE</span>
+              </div>
+            </div>
+
+            <div class="siem-bottom-grid">
+              <div class="cyber-panel siem-logs-table-wrapper">
+                <div class="hud-title-bar"><span>SURICATA INTRUSION DETECTION PACKET CAPTURE</span></div>
+                <div class="table-header-sticky" style="margin-top: 10px;">
+                  <span>TIME</span>
+                  <span>SEVERITY</span>
+                  <span>SOURCE IP</span>
+                  <span>TARGET PATH</span>
+                  <span>PROTOCOL</span>
+                </div>
+                <div class="siem-logs-scroll" id="siem-traffic-feed">
+                  <!-- Filled dynamically by server websocket traffic -->
+                </div>
+              </div>
+
+              <div class="map-sidebar-details">
+                <div class="cyber-panel" style="flex-grow: 1;">
+                  <div class="hud-title-bar"><span>INTELLIGENT threat containment rules</span></div>
+                  <div class="hud-panel-content" style="font-size: 12px; display: flex; flex-direction: column; gap: 14px;">
+                    <div>
+                      <strong style="color: var(--color-crimson);">IPS Automated Firewall Rules:</strong>
+                      <p style="color: var(--color-text-secondary); margin-top: 4px;">Suricata triggers real-time host containment on anomalous traffic volumes (DDoS blocks).</p>
+                    </div>
+                    <div style="background: rgba(255, 56, 96, 0.05); padding: 8px; border-left: 2px solid var(--color-crimson);">
+                      <strong>ACTIVE RULES:</strong>
+                      <ul style="margin-left: 18px; margin-top: 4px; color: var(--color-text-secondary); font-size: 11px;">
+                        <li>DROP packets from IP: 185.220.101.4</li>
+                        <li>DROP packets from IP: 109.201.154.218</li>
+                        <li>ISOLATE network paths on Port 80/443 under DDoS</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <strong>Containment Mode:</strong>
+                      <select id="containment-strategy" class="auth-input" style="margin-top: 6px;">
+                        <option value="auto">Adaptive Auto-Containment (AI-driven)</option>
+                        <option value="strict">Strict - Lockdown Affected Nodes Immediately</option>
+                        <option value="manual">Manual Containment (Auditor Review)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. SYSTEM LOGS TAB (AUDIT TRAIL) -->
+        <div id="audit-pane" class="hud-tab-pane">
+          <div class="cyber-panel audit-log-wrapper">
+            <div class="hud-title-bar">
+              <span>ZERO-TRUST IMMUTABLE AUDIT LOG (SYSTEM SIEM COMPILING)</span>
+              <button class="btn-lockdown-toggle font-hud" style="border-color: var(--color-cyan); color: var(--color-cyan);" onclick="fetchAuditLogs()">Refresh Ledger</button>
+            </div>
+            
+            <div class="audit-table-panel">
+              <div class="audit-table-header">
+                <span>TIMESTAMP</span>
+                <span>MICROSERVICE</span>
+                <span>ACTOR</span>
+                <span>ACTION REGISTERED</span>
+                <span>STATUS</span>
+                <span>DETAILS LOG</span>
+              </div>
+              <div class="audit-rows-scroll" id="audit-rows-container">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- JS Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/crypto.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

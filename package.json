@@ -1,0 +1,23 @@
+{
+  "name": "sena-secure",
+  "version": "1.0.0",
+  "description": "Secure Military Information Exchange Platform - Indian Defense Environment",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.16.0"
+  },
+  "keywords": [
+    "military",
+    "security",
+    "encryption",
+    "zero-trust",
+    "defense"
+  ],
+  "author": "Antigravity",
+  "license": "ISC"
+}
