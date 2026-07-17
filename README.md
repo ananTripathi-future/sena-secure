@@ -1,6 +1,8 @@
 # Sena-Secure 🛡️
 ### Classified Secure Information Exchange & Command Platform
 
+![Sena-Secure Login Screen](public/images/login_screen.png)
+
 Sena-Secure is an immersive, zero-trust military communications and secure repository exchange portal customized for tactical defense operations. It simulates modern post-quantum cryptography, real-time threat monitoring (SIEM/IDS), and command node coordination.
 
 ---
